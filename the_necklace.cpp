@@ -380,7 +380,7 @@ int main (void) {
         }
         Eulerian<graph<int>> E(G);
         graph<int>::Path p = E.ec();
-        cout << "\nCase #" << i << "\n";
+        cout << "Case #" << i << "\n";
         if (p.empty()) {
             cout << "some beads may be lost" << endl;
         }
