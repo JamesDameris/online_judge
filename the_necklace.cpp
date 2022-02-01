@@ -286,21 +286,23 @@ graph<int> read_file_graph(istream & in, const int & m)
 }
 
 int main (void) {
-    ifstream ise("/Users/jamesdameris/Desktop/School/COEN/CSCI164/online_judge/input.txt");
-    if (ise.fail())
-    {
-        cout << "Can't read file" << endl;
-        exit(1);
-    }
+    // ifstream ise("/Users/jamesdameris/Desktop/School/COEN/CSCI164/online_judge/input.txt");
+    // if (ise.fail())
+    // {
+    //     cout << "Can't read file" << endl;
+    //     exit(1);
+    // }
     int n = 0;
-    ise >> n; // number of problems
+    cin >> n;
+    //ise >> n; // number of problems
     int i = 1;
     int j = 0;
     int m = 0;
     for (i = 1; i <= n; ++i) {
-        //cin >> m;
-        ise >> m;
-        graph<int> G = read_file_graph(ise, m);
+        cin >> m;
+        // ise >> m;
+        // graph<int> G = read_file_graph(ise, m);
+        graph<int> G = read_graph(m);
         Eulerian<graph<int>> E(G);
         graph<int>::Path p = E.ec();
         cout << "Case #" << i << "\n";
