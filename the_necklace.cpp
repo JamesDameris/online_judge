@@ -189,100 +189,6 @@ std::istream &  operator >>(std::istream & is, graph<T> & G)
 }
 
 template <class GRAPH>
-class BFS
-{
-
-public:
-
-    typedef typename GRAPH::Vertex Vertex;
-
-    BFS()
-    {}
-
-    BFS(const GRAPH & G)
-    {
-        _ncc = 0;
-        _bipartite = true;
-
-        for (auto v: G.V())
-        {
-          if (_C.count(v) == 0)   // unvisited
-          {
-            std::unordered_map<Vertex, std::size_t> D;
-            std::unordered_map<Vertex, Vertex> P;
-
-            bfs_one(G, v, D, P);
-            ++_ncc;
-            for (auto p: D)
-              _C[p.first] = _ncc;
-
-          }
-        }
-    }
-
-    std::size_t ncc() const
-    {
-        return _ncc;
-    }
-
-    std::unordered_map<Vertex, std::size_t> component() const
-    {
-        return _C;
-    }
-
-    bool has_path_between(const Vertex & a, const Vertex &b) const
-    {
-        return (_C.at(a) == _C.at(b));
-    }
-
-
-    void bfs_one(GRAPH G,
-                 const Vertex v,                                // start vertex
-                 std::unordered_map<Vertex, std::size_t> & D,   // distance from start vertex
-                 std::unordered_map<Vertex, Vertex> & P)        // parent in path back to start vertex
-    {
-        std::queue<Vertex> Q;
-        std::unordered_map<Vertex, bool> color;
-
-        P[v] = v;
-        D[v] = 0;
-        Q.push(v);
-        color[v] = true;
-
-        while (!Q.empty())
-        {
-          Vertex f = Q.front();
-          Q.pop();
-
-          for (auto w: G.Adj(f))
-              if (D.count(w) == 0)  // not visited
-              {
-                  D[w] = 1 + D[f];
-                  P[w] = f;
-                  Q.push(w);
-                  color[w] = !color.at(f);
-              }
-              else
-                  if (color.at(w) == color.at(f))
-                      _bipartite = false;
-         }
-    }
-
-    bool is_bipartite() const
-    {
-        return _bipartite;
-    }
-
-private:
-    bool _bipartite;
-    std::size_t _ncc;   // number of connected components
-    std::unordered_map<Vertex, std::size_t> _C;  // component number of each vertex
-
-};
-
-
-
-template <class GRAPH>
 class Eulerian
 {
 public:
@@ -321,12 +227,10 @@ public:
        while (!S.empty())
        {
            Vertex s = S.top();
-           // std::cout << "\n" << s <<"\n" << _G.deg(s) << std::endl;
            if (_G.deg(s) != 0)
            {
                Vertex w = *(_G.Adj(s).begin());  // first neighbor
                _G.removeEdge(s, w);
-               // std::cout << "\n" << _G << std::endl;
                S.push(w);
 
            }
@@ -336,7 +240,6 @@ public:
                ans.push_back(s);
            }
        }
-
        return ans;
 
 
@@ -367,21 +270,39 @@ graph<int> read_graph()
     return G;
 }
 
+// graph<int> read_file_graph(istream & in)
+// {
+//     int m, v, w;
+//     graph<int> G;
+
+//     in >> m;
+//     for (int i = 0; i < m; ++i)
+//     {
+//         in >> v >> w;
+//         G.addVertex(v);
+//         G.addVertex(w);
+//         G.addEdge(v, w); // change to multiset
+//     }
+
+//     return G;
+// }
+
 int main (void) {
+    // ifstream ise("/Users/jamesdameris/Desktop/School/COEN/CSCI164/online_judge/input.txt");
+    // if (ise.fail())
+    // {
+    //     cout << "Can't read file" << endl;
+    //     exit(1);
+    // }
     int n = 0;
     cin >> n; // number of problems
     int i = 1;
     for (i = 1; i <= n; ++i) {
         graph<int> G = read_graph();
-        if (!G.isConnected()) {
-            cout << "\nCase #" << i << "\n";
-            cout << "some beads may be lost" << endl;
-            continue;
-        }
         Eulerian<graph<int>> E(G);
         graph<int>::Path p = E.ec();
         cout << "Case #" << i << "\n";
-        if (p.empty()) {
+        if (p.empty() || (p.size() != G.m())) {
             cout << "some beads may be lost" << endl;
         }
         else {
