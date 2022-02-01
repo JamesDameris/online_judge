@@ -294,7 +294,7 @@ int main (void) {
     // }
     int n = 0;
     cin >> n;
-    //ise >> n; // number of problems
+    // ise >> n; // number of problems
     int i = 1;
     int j = 0;
     int m = 0;
@@ -305,7 +305,8 @@ int main (void) {
         graph<int> G = read_graph(m);
         Eulerian<graph<int>> E(G);
         graph<int>::Path p = E.ec();
-        cout << "Case #" << i << "\n";
+        cout << "\nCase #" << i << "\n";
+        cout << p.size() << endl;
         if (p.empty() || (p.size()-1 != m)) {
             cout << "some beads may be lost" << endl;
         }
