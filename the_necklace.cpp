@@ -253,12 +253,11 @@ private:
 
 
 using namespace std;
-graph<int> read_graph()
+graph<int> read_graph(const int & m)
 {
-    int m, v, w;
+    int v, w;
     graph<int> G;
 
-    cin >> m;
     for (int i = 0; i < m; ++i)
     {
         cin >> v >> w;
@@ -270,44 +269,47 @@ graph<int> read_graph()
     return G;
 }
 
-// graph<int> read_file_graph(istream & in)
-// {
-//     int m, v, w;
-//     graph<int> G;
+graph<int> read_file_graph(istream & in, const int & m)
+{
+    int v, w;
+    graph<int> G;
 
-//     in >> m;
-//     for (int i = 0; i < m; ++i)
-//     {
-//         in >> v >> w;
-//         G.addVertex(v);
-//         G.addVertex(w);
-//         G.addEdge(v, w); // change to multiset
-//     }
+    for (int i = 0; i < m; ++i)
+    {
+        in >> v >> w;
+        G.addVertex(v);
+        G.addVertex(w);
+        G.addEdge(v, w); // change to multiset
+    }
 
-//     return G;
-// }
+    return G;
+}
 
 int main (void) {
-    // ifstream ise("/Users/jamesdameris/Desktop/School/COEN/CSCI164/online_judge/input.txt");
-    // if (ise.fail())
-    // {
-    //     cout << "Can't read file" << endl;
-    //     exit(1);
-    // }
+    ifstream ise("/Users/jamesdameris/Desktop/School/COEN/CSCI164/online_judge/input.txt");
+    if (ise.fail())
+    {
+        cout << "Can't read file" << endl;
+        exit(1);
+    }
     int n = 0;
-    cin >> n; // number of problems
+    ise >> n; // number of problems
     int i = 1;
+    int j = 0;
+    int m = 0;
     for (i = 1; i <= n; ++i) {
-        graph<int> G = read_graph();
+        //cin >> m;
+        ise >> m;
+        graph<int> G = read_file_graph(ise, m);
         Eulerian<graph<int>> E(G);
         graph<int>::Path p = E.ec();
         cout << "Case #" << i << "\n";
-        if (p.empty() || (p.size() != G.m())) {
+        if (p.empty() || (p.size()-1 != m)) {
             cout << "some beads may be lost" << endl;
         }
         else {
-            for (i = 0; i < p.size()-1; ++i) {
-                cout << p[i] << " " << p[i+1] << endl;
+            for (j = 0; j < p.size()-1; ++j) {
+                cout << p[j] << " " << p[j+1] << endl;
             }
             
         }
