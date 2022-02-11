@@ -239,16 +239,18 @@ using namespace std;
 
 int main (void) {
     digraph<int> G;
+    int M = 0, N = 0;
     int m = 0, n = 0;
     while (1) {
-        cin >> n >> m;
-        if (n == 0 && m == 0) {
+        cin >> N >> M;
+
+        if (N == 0 && M == 0) {
             break;
         }
-        for (int i=1; i<=n; ++i) {
+        for (int i=1; i<=N; ++i) {
             G.addVertex(i);
         }
-        for (int i=1; i<=m; ++i) {
+        for (int i=1; i<=M; ++i) {
             cin >> n >> m;
             G.addEdge(n,m);
         }
