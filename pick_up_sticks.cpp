@@ -259,7 +259,7 @@ int main (void) {
         G.addVertex(i);
     }
     cin >> n >> m;
-    while (n != 0) {
+    while (n != 0 && m != 0) {
         G.addEdge(n,m);
         cin >> n >> m;
     }
