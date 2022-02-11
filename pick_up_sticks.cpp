@@ -238,10 +238,10 @@ private:
 using namespace std;
 
 int main (void) {
-    digraph<int> G;
     int M = 0, N = 0;
     int m = 0, n = 0;
     while (1) {
+        digraph<int> G;
         cin >> N >> M;
 
         if (N == 0 && M == 0) {
