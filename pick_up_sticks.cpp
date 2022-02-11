@@ -181,20 +181,6 @@ private:
 
 };
 
-template <class T>
-std::ostream & operator <<(std::ostream & os, const digraph<T> & G)
-{
-    os << G.n() << " " << G.m() << std::endl;
-    for (auto v: G.V())
-        os << v << " ";
-    os << std::endl;
-
-    for (auto v: G.V())
-        for (auto w: G.Adj(v))
-            os << v << " " << w << std::endl;
-    return os;
-}
-
 
 template <class GRAPH>
 class DFS
@@ -254,25 +240,26 @@ using namespace std;
 int main (void) {
     digraph<int> G;
     int m = 0, n = 0;
-    cin >> n >> m;
-    for (int i=1; i<=n; ++i) {
-        G.addVertex(i);
-    }
-    cin >> n >> m;
-    while (n != 0 && m != 0) {
-        G.addEdge(n,m);
+    while (1) {
         cin >> n >> m;
-    }
-
-    cout << G << "\n Graph" << endl;
-    DFS<digraph<int> > D(G);
-    if (!G.isDag()) {
-        cout << "IMPOSSIBLE";
-    }
-    else {
-        for (auto v: D.ts()) {
-            cout << v << endl;
+        if (n == 0 && m == 0) {
+            break;
+        }
+        for (int i=1; i<=n; ++i) {
+            G.addVertex(i);
+        }
+        for (int i=1; i<=m; ++i) {
+            cin >> n >> m;
+            G.addEdge(n,m);
+        }
+        DFS<digraph<int> > D(G);
+        if (!G.isDag()) {
+            cout << "IMPOSSIBLE" << endl;
+        }
+        else {
+            for (auto v: D.ts()) {
+                cout << v << endl;
+            }
         }
     }
-
 }
