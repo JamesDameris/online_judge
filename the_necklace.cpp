@@ -305,7 +305,10 @@ int main (void) {
         graph<int> G = read_graph(m);
         Eulerian<graph<int>> E(G);
         graph<int>::Path p = E.ec();
-        cout << "\nCase #" << i << "\n";
+        if (i > 1) {
+            cout << endl;
+        }
+        cout << "Case #" << i << "\n";
         cout << p.size() << endl;
         if (p.empty() || (p.size()-1 != m)) {
             cout << "some beads may be lost" << endl;
