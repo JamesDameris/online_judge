@@ -4,6 +4,8 @@
 #include <iostream>
 #include <vector>
 #include <list>
+#include <stack>
+
 
 template <class T>
 class graph
@@ -102,9 +104,6 @@ protected:
 };
 
 
-
-
-
 template <class T> class DFS;
 
 template <class T>
@@ -175,93 +174,116 @@ public:
         return ans;
     }
 
-
-
 private:
 
 };
 
 
-template <class GRAPH>
-class DFS
+template <class DIGRAPH>
+class TSCC
 {
-
 public:
-    typedef typename GRAPH::Vertex Vertex;
 
-    DFS() {
-    }
+    typedef typename DIGRAPH::Vertex Vertex;
+    typedef typename DIGRAPH::VertexSet VertexSet;
 
-    DFS(const GRAPH & G) {
-        time = 0;
-        _is_dag = true;
-
-        for (auto & v: G.V()) {
-            if (pre.count(v) == 0) {  // v has not been visited
-                dfs_one(G, v);
-            }
+    TSCC(const DIGRAPH & G)
+    {
+        _time = _cid = 0;
+        for (auto &v : G.V())
+        {
+            if (_pre.count(v) == 0)
+                tdfs_one(G, v);
         }
     }
 
-    void dfs_one(const GRAPH & G, const Vertex & v) {
-        pre[v] = ++time;
-        for (auto &w : G.Adj(v)) {
-            if (pre.count(w) == 0) {
-                dfs_one(G, w);
-            }
-            else if (pre.at(w) < pre.at(v) && post.count(w) == 0) { // proper back edge
-                _is_dag = false;
-            }
-        }
-        post[v] = ++time;
-        
-        _ts.push_front(v);
-    }
-
-    bool isDag() const {
-        return _is_dag;
-    }
-
-    std::list<Vertex> ts() const {
-        return _ts;
+    std::size_t numComp() const 
+    { 
+        return _cid;
     }
 
 
+    std::unordered_map<Vertex, std::size_t> component() const
+    {
+        return _C;
+    }
 
 private:
-    std::unordered_map<Vertex, std::size_t> _C, pre, post;
-    std::size_t time;
-    bool _is_dag;
-    std::list<Vertex> _ts;
+
+    void tdfs_one(const DIGRAPH & G, const Vertex & v)
+    {
+        _pre[v] = _low[v] = _time++;
+        _S.push(v);
+
+        for (auto &w: G.Adj(v))
+        {
+            if (_pre.count(w) == 0) // tree edge
+            {
+                tdfs_one(G, w);
+                _low[v] = std::min(_low.at(v), _low.at(w));
+            }
+
+            // check to see if it is a back edge
+            else if (_pre.at(w) < _pre.at(v) && _post.count(w) == 0)// back edge
+                _low[v] = std::min(_low.at(v), _pre.at(w));
+        }
+        _post[v] = _time++;
+        if (_pre.at(v) == _low.at(v))  // root of a component
+        {
+            Vertex top;
+            do
+            {
+                top = _S.top();
+                _S.pop();
+                _C[top] = _cid;
+            } while (top != v);
+            ++_cid;
+        }
+    }
+
+
+
+    std::unordered_map<Vertex, std::size_t> _pre, _post, _low, _C;
+    std::size_t _time, _cid;
+    std::stack<Vertex> _S;
+
+
+
+
 };
+
 
 using namespace std;
 
-int main (void) {
-    int M = 0, N = 0;
-    int m = 0, n = 0;
-    while (1) {
+int main(void) 
+{
+    int cases = 0;
+    int x = 0,y = 0;
+    int n = 0, m = 0;
+    cin >> cases;
+    for (int i = 0; i < cases; i++) 
+    {
         digraph<int> G;
-        cin >> N >> M;
-
-        if (N == 0 && M == 0) {
-            break;
+        cin >> n >> m; 
+        for (int j=1; j<=n; ++j) 
+        { // add vertices from 1 to N
+            G.addVertex(j);
         }
-        for (int i=1; i<=N; ++i) { // add vertices from 1 to N
-            G.addVertex(i);
+        for (int j=1; j<=m; ++j) 
+        { // add edges from 1 to M
+            cin >> x >> y; // edge 1 and 2
+            G.addEdge(x,y); 
         }
-        for (int i=1; i<=M; ++i) { // add edges from 1 to M
-            cin >> n >> m; // edge 1 and 2
-            G.addEdge(n,m); 
-        }
-        DFS<digraph<int> > D(G);
-        if (!G.isDag()) {
-            cout << "IMPOSSIBLE" << endl;
-        }
-        else {
-            for (auto v: D.ts()) {
-                cout << v << endl;
+        TSCC<digraph<int> > T(G);
+        unordered_map<digraph<int>::Vertex, std::size_t> _C = T.component();
+        unordered_set<int> not_source;
+        for (auto v: G.V()) {
+            for (auto w: G.Adj(v)) {
+                if (_C.at(v) != _C.at(w)) {
+                    not_source.insert(_C.at(w));
+                }
             }
         }
+        cout << T.numComp() - not_source.size() << endl;
     }
 }
