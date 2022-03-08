@@ -496,8 +496,11 @@ int main()
     {
         network<int> G;
         cin >> n >> m >> start >> end;
-        if (start == end)
+        if ((start == end) || (m == 0))
+        {
+            cout << "Case #" << (i+1) << ": " << "unreachable" << endl;
             continue;
+        }
         for (size_t i = 0; i < n; ++i)
         {
             G.addVertex(i);
