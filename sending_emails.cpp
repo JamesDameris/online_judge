@@ -26,22 +26,14 @@ struct Edge
 };
 
 
-
-
-
 template <class T>
 class graph
 {
 
 public:
-
-
-
     typedef T Vertex;
     typedef std::unordered_set<T> VertexSet;
     typedef std::vector<T> Path;
-
-
 
 
     graph<T>() 
@@ -122,80 +114,9 @@ public:
         _t[w].erase(v);
     }
 
-    bool isConnected() const
-    {
-        BFS<graph> B(*this);
-        return (B.ncc() == 1);
-
-    }
-
-    std::size_t ncc() const
-    {
-        BFS<graph> B(*this);
-        return B.ncc();
-    }
-
-    bool isAcyclic() const
-    {
-        return (n() == ncc() + m());
-    }
-
-    bool isTree() const
-    {
-        return (isConnected() && isAcyclic());
-    }
-
-
-
-
 protected:
-
     std::unordered_map<Vertex, VertexSet> _t;
-
 };
-
-
-
-template <class T>
-std::ostream & operator <<(std::ostream & os, const graph<T> & G)
-{
-    os << G.n() << " " << G.m() << std::endl;
-    for (auto v: G.V())
-        os << v << " ";
-    os << std::endl;
-
-    for (auto v: G.V())
-        for (auto w: G.Adj(v))
-            if (v < w)
-                os << v << " " << w << std::endl;
-    return os;
-}
-
-
-template <class T>
-std::istream &  operator >>(std::istream & is, graph<T> & G)
-{
-    std::size_t n, m;
-    is >> n >> m;
-
-    G = graph<T>();
-
-    T v, w;
-    for (std::size_t i = 0; i < n; ++i)
-    {
-        is >> v;
-        G.addVertex(v);
-    }
-
-    for (std::size_t i = 0; i < m; ++i)
-    {
-        is >> v >> w;
-        G.addEdge(v, w);
-    }
-
-    return is;
-}
-
 
 template <class T>
 bool operator <(const Edge<T> &e1,
@@ -203,13 +124,6 @@ bool operator <(const Edge<T> &e1,
 {
 
     return ((e1.a < e2.a) || ((e1.a == e2.a) && (e1.b < e2.b)));
-}
-
-template <class T>
-std::ostream & operator << (std::ostream & os, const Edge<T> & e)
-{
-    os << "{" << e.a << ", " << e.b << "}";
-    return os;
 }
 
 template <class T> class DFS;
@@ -260,72 +174,9 @@ public:
         graph<T>::_t[v].erase(w);
     }
 
-    bool isDag() const
-    {
-        DFS<digraph<Vertex>> D(*this);
-        return D.isDag();
-    }
-
-    digraph reverse() const
-    {
-        digraph ans;
-
-        for (auto &v: graph<Vertex>::V())
-            ans.addVertex(v);
-
-        for (auto &v: graph<Vertex>::V())
-        {
-            for (auto &w: graph<Vertex>::Adj(v))
-                ans.addEdge(w, v);
-        }
-
-        return ans;
-    }
-
-
 
 private:
-
 };
-
-template <class T>
-std::ostream & operator <<(std::ostream & os, const digraph<T> & G)
-{
-    os << G.n() << " " << G.m() << std::endl;
-    for (auto v: G.V())
-        os << v << " ";
-    os << std::endl;
-
-    for (auto v: G.V())
-        for (auto w: G.Adj(v))
-            os << v << " " << w << std::endl;
-    return os;
-}
-
-
-template <class T>
-std::istream &  operator >>(std::istream & is, digraph<T> & G)
-{
-    std::size_t n, m;
-    is >> n >> m;
-
-    G = digraph<T>();
-
-    T v, w;
-    for (std::size_t i = 0; i < n; ++i)
-    {
-        is >> v;
-        G.addVertex(v);
-    }
-
-    for (std::size_t i = 0; i < m; ++i)
-    {
-        is >> v >> w;
-        G.addEdge(v, w);
-    }
-
-    return is;
-}
 
 template <class T>
 struct WEdge: public Edge<T>
@@ -345,19 +196,10 @@ bool operator < (const WEdge<T> & e1, const WEdge<T> & e2)
             ((e1.w == e2.w) && (Edge<T>(e1) < Edge<T>(e2))));
 }
 
-
-template <class T>
-std::ostream & operator << (std::ostream & os, const WEdge<T> & e)
-{
-    os << "(" << e.a << ", " << e.b << ", " << e.w << ")";
-    return os;
-}
-
 template <class T>
 class wgraph: public graph<T>
 {
   public:
-
     typedef T Vertex;
 
     wgraph()
@@ -407,64 +249,8 @@ class wgraph: public graph<T>
     }
 
 private:
-
     std::map<Edge<T>, double> _w;   // maps an edge to its weight
-
-
-
 };
-
-template <class T>
-std::ostream &  operator << (std::ostream & os, const wgraph<T> & G)
-{
-
-    os << G.n() << " " << G.m() << std::endl;
-    for (auto & v: G.V())
-        os << v << " ";
-
-    os << std::endl;
-
-    /*
-    for (auto & v: G.V())
-        for (auto &w: G.Adj(v))
-            if (v < w)
-                os << v << " " << w << " " << G.cost(v, w) <<  std::endl;
-                */
-
-    for (auto &e: G.E())
-        if (e.a < e.b)
-          os << e << std::endl;
-
-    return os;
-
-}
-
-template <class T>
-std::istream & operator >> (std::istream & is, wgraph<T> & G)
-{
-    G = wgraph<T>();
-
-
-    std::size_t n, m;
-    is >> n >> m;
-    T v, w;
-    double c;
-
-    for (std::size_t i = 0; i < n; ++i)
-    {
-        is >> v;
-        G.addVertex(v);
-
-    }
-
-    for (std::size_t i = 0; i < m; ++i)
-    {
-        is >> v >> w >> c;
-        G.addEdge(v, w, c);
-    }
-
-    return is;
-}
 
 template <class T>
 class network: public digraph<T>
@@ -515,50 +301,11 @@ private:
 
 };
 
-template <class T>
-std::ostream & operator << (std::ostream & os, const network<T> & G)
-{
-    os << G.n() << " " << G.m() << std::endl;
-    for (auto &v: G.V())
-        os << v << " ";
-    os << std::endl;
-    for (auto &v: G.V())
-      for (auto &w: G.Adj(v))
-          os << v << " " << w << " " << G.cost(v, w) << std::endl;
-
-    return os;
-}
-
-template <class T>
-std::istream & operator >> (std::istream & is, network<T> & G)
-{
-    std::size_t n, m;
-    T v, w;
-    double c;
-
-    G = network<T>();
-
-    is >> n >> m;
-    for (std::size_t i = 0; i < n; ++i)
-    {
-        is >> v;
-        G.addVertex(v);
-    }
-
-    for (std::size_t i = 0; i < m; ++i)
-    {
-        is >> v >> w >> c;
-        G.addEdge(v, w, c);
-    }
-
-    return is;
-}
 
 template <class T>
 class dary_heap
 {
 public:
-
     dary_heap(std::size_t d = 2): _d(d)
     {
         _n = 0;
@@ -642,7 +389,6 @@ public:
 
     }
 
-
     void pop_min()
     {
 
@@ -678,15 +424,10 @@ public:
     }
 
 private:
-
     std::size_t _n;                   // number of elements in heap
     std::size_t _d;                   // number of children
     std::vector<T> _data;             // heap elements live here
     std::map<T, std::size_t> _l;      // _data[_l[key]] = key
-
-
-
-
 
 };
 
@@ -695,59 +436,53 @@ template <class Graph>
 class dijkstra
 {
 public:
-typedef typename Graph::Vertex Vertex;
-typedef std::pair<Vertex, double> PAIR;
-dijkstra() {};
+    typedef typename Graph::Vertex Vertex;
+    typedef std::pair<Vertex, double> PAIR;
+    dijkstra() {};
 
-std::map<Vertex, Vertex> d(Graph G, Vertex s)
-{
-    for (auto v: G.V())
+    std::map<Vertex, Vertex> d(Graph G, Vertex s)
     {
-        _d[v] = std::numeric_limits<double>::infinity();
-    }
-    _d[s] = 0;
-    size_t comp = (2 >= G.m()/G.n() ? 2 : G.m()/G.n());
-    dary_heap<PAIR> H(comp);
-    for (auto v: G.V()) 
-    {
-        H.push(PAIR(v,_d[v]));
-    }
-
-    for (int i = 0; i < G.V().size(); ++i)
-    {
-        PAIR v = H.min();
-        _deleted.insert(v.first);
-        H.pop_min();
-            
-        for (auto w: G.Adj(v.first))
+        for (auto v: G.V())
         {
-            if (_deleted.count(w) == 0 && _d[w] > _d[v.first] + G.cost(v.first, w))
+            _d[v] = std::numeric_limits<double>::infinity();
+        }
+        _d[s] = 0;
+        size_t comp = (2 >= G.m()/G.n() ? 2 : G.m()/G.n());
+        dary_heap<PAIR> H(comp);
+        for (auto v: G.V()) 
+        {
+            H.push(PAIR(v,_d[v]));
+        }
+
+        for (int i = 0; i < G.V().size(); ++i)
+        {
+            PAIR v = H.min();
+            _deleted.insert(v.first);
+            H.pop_min();
+                
+            for (auto w: G.Adj(v.first))
             {
-                double weight = _d[w];
-                _d[w] = _d[v.first] + G.cost(v.first, w);
-                _parent[w] = v.first;
-                H.decrease_key(PAIR(w,weight), PAIR(w,_d[w]));
+                if (_deleted.count(w) == 0 && _d[w] > _d[v.first] + G.cost(v.first, w))
+                {
+                    double weight = _d[w];
+                    _d[w] = _d[v.first] + G.cost(v.first, w);
+                    _parent[w] = v.first;
+                    H.decrease_key(PAIR(w,weight), PAIR(w,_d[w]));
+                }
             }
         }
+        return _parent;
     }
-    return _parent;
-}
 
-friend bool operator < (const PAIR & p1, const PAIR & p2)
-{
-    return (p1.second < p2.second);
-}
-friend std::ostream & operator << (std::ostream & os, const PAIR & p)
-{
-    os << p.first << " " << p.second << std::endl;
-    return os;
-}
+    friend bool operator < (const PAIR & p1, const PAIR & p2)
+    {
+        return (p1.second < p2.second);
+    }
 
 private:
-
-std::map<Vertex, Vertex> _parent;
-std::map<Vertex, double> _d;
-std::unordered_set<Vertex> _deleted;
+    std::map<Vertex, Vertex> _parent;
+    std::map<Vertex, double> _d;
+    std::unordered_set<Vertex> _deleted;
 };
 
 using namespace std;
