@@ -341,11 +341,11 @@ public:
         _l[x] = _n;
         ++_n;
 
-        int i = _l.at(x);
+        std::size_t i = _l.at(x);
         while (i > 0)
         {
-            int parent = (i - 1) / _d;
-            if (_data[i] < _data[parent])
+            std::size_t parent = (i - 1) / _d;
+            if (_data[i].second < _data[parent].second)
             {
                 
                 std::swap(_data[i], _data[parent]);
@@ -368,7 +368,7 @@ public:
         
         assert(newx < x && _l.count(x) != 0 && _l.count(newx) == 0);
         
-        int i = _l.at(x);
+        std::size_t i = _l.at(x);
         
         _data[i] = newx;
         
@@ -377,9 +377,9 @@ public:
         _l[newx] = i;
 
 
-        while (i > 0 && _data[i] < _data[(i-1)/_d])
+        while (i > 0 && _data[i].second < _data[(i-1)/_d].second)
         {
-            int parent = (i-1)/_d;
+            std::size_t parent = (i-1)/_d;
 
             std::swap(_data[i], _data[parent]);
             _l[_data[parent]] = parent;
@@ -400,13 +400,13 @@ public:
 
         _data[0] = _data[_n];
         _l[_data[0]] = 0;
-        int i = 0;
+        std::size_t i = 0;
 
         while (i*_d + 1 < _n)      //  there is at least one child
         {
-            int left(i*_d + 1), right((i+1)*_d), m(left);
+            std::size_t left(i*_d + 1), right((i+1)*_d), m(left);
 
-            for (int c = left; c < _n && c <= right; ++c)
+            for (std::size_t c = left; c < _n && c < right; ++c)
                 if (_data[c] < _data[m])
                     m = c;
 
@@ -437,49 +437,52 @@ class dijkstra
 {
 public:
     typedef typename Graph::Vertex Vertex;
-    typedef std::pair<double, Vertex> PAIR;
+    typedef std::pair<Vertex, double> PAIR;
     dijkstra() {};
 
     std::map<Vertex, Vertex> d(Graph G, Vertex s)
     {
-
-        std::map<Vertex, Vertex> _parent;
-        std::map<Vertex, double> _d;
-        std::unordered_set<Vertex> _deleted;
-
         for (auto v: G.V())
         {
             _d[v] = std::numeric_limits<double>::infinity();
         }
         _d[s] = 0;
-        size_t comp = ((2 >= G.m()/G.n()) ? 2 : G.m()/G.n());
+        size_t comp = (2 >= G.m()/G.n() ? 2 : G.m()/G.n());
         dary_heap<PAIR> H(comp);
         for (auto v: G.V()) 
         {
-            H.push(PAIR(_d[v], v));
+            H.push(PAIR(v,_d[v]));
         }
 
-        for (int i = 0; i < G.n(); ++i)
+        for (int i = 0; i < G.V().size(); ++i)
         {
             PAIR v = H.min();
-            _deleted.insert(v.second);
+            _deleted.insert(v.first);
             H.pop_min();
                 
-            for (auto w: G.Adj(v.second))
+            for (auto w: G.Adj(v.first))
             {
-                if (_deleted.count(w) == 0 && _d[w] > _d[v.second] + G.cost(v.second, w))
+                if (_deleted.count(w) == 0 && _d[w] > _d[v.first] + G.cost(v.first, w))
                 {
                     double weight = _d[w];
-                    _d[w] = _d[v.second] + G.cost(v.second, w);
-                    _parent[w] = v.second;
-                    H.decrease_key(PAIR(weight, w), PAIR(_d[w], w));
+                    _d[w] = _d[v.first] + G.cost(v.first, w);
+                    _parent[w] = v.first;
+                    H.decrease_key(PAIR(w,weight), PAIR(w,_d[w]));
                 }
             }
         }
         return _parent;
     }
 
+    friend bool operator < (const PAIR & p1, const PAIR & p2)
+    {
+        return (p1.second < p2.second);
+    }
+
 private:
+    std::map<Vertex, Vertex> _parent;
+    std::map<Vertex, double> _d;
+    std::unordered_set<Vertex> _deleted;
 };
 
 using namespace std;
@@ -493,7 +496,11 @@ int main()
     {
         network<int> G;
         cin >> n >> m >> start >> end;
-
+        if ((start == end) || (m == 0))
+        {
+            cout << "Case #" << (i+1) << ": " << "unreachable" << endl;
+            continue;
+        }
         for (size_t i = 0; i < n; ++i)
         {
             G.addVertex(i);
@@ -508,16 +515,16 @@ int main()
         dijkstra<network<int> > D;
 
         map<int, int> parent = D.d(G, start);
-        
-        if (parent.count(end) == 0)
+        double TOTAL = 0;
+        int cursor = start;
+        for (auto p : parent)
+        {   
+            TOTAL += G.cost(p.first,p.second);
+        }
+        if (TOTAL == 0)
             cout << "Case #" << (i+1) << ": " << "unreachable" << endl;
         else 
-        {
-            double TOTAL = 0;
-            for (int v = end; v != start; v = parent.at(v))
-              TOTAL += G.cost(v, parent.at(v));
             cout << "Case #" << (i+1) << ": " << TOTAL << endl;
-        }
     }
     return 0;
 }
